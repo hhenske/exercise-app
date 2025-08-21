@@ -1,71 +1,28 @@
 import { useEffect, useState } from "react";
-import { fetchExercises } from "../api/exerciseApi";
-import "../app.css";
+import { fetchExerciseList } from "../api/exerciseApi";
 
-function ExerciseList({ filters, onBack }) {
+export default function ExerciseList({ selectedFilters }) {
   const [exercises, setExercises] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // useEffect(() => {
-  //   console.log("Filters received in ExerciseList:", filters);
-  //   fetchExercises(filters).then(setExercises);
-  // }, [filters]);
-
 
   useEffect(() => {
-    async function load() {
-      try {
-        const json = await fetchExercises(40);
-        let data = json.data;
-
-        // Apply filters
-        if (filters.exerciseType) {
-          data = data.filter((ex) => ex.exerciseType === filters.exerciseType);
-        }
-        if (filters.bodyParts.length > 0) {
-          data = data.filter((ex) =>
-            filters.bodyParts.includes(ex.bodyPart)
-          );
-        }
-
-        setExercises(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+    async function loadExercises() {
+      const data = await fetchExerciseList(selectedFilters.bodyParts);
+      setExercises(data);
     }
-    load();
-  }, [filters]);
-
-  if (loading) return <p>Loading exercises...</p>;
+    loadExercises();
+  }, [selectedFilters]);
 
   return (
     <div>
-      <button className="back-button" onClick={onBack}>
-        ⬅ Back
-      </button>
-
-      <div className="exercise-list">
-        {exercises.map((exercise) => (
-          <div key={exercise.exerciseId} className="exercise-card">
-            <h2>{exercise.name}</h2>
-            <p>Type: {exercise.exerciseType}</p>
-            {exercise.bodyPart && <p>Body Part: {exercise.bodyPart}</p>}
-            {exercise.imageUrl && (
-              <img
-                src={exercise.imageUrl}
-                alt={exercise.name}
-                width="200"
-              />
-            )}
-          </div>
-        ))}
-      </div>
+      <h2>Exercises</h2>
+    <ul>
+  {exercises.map((ex, index) => (
+    <li key={ex.exerciseId || `${ex.name}-${index}`}>
+      <strong>{ex.name}</strong> — {ex.exerciseType} — {ex.bodyParts.join(", ")}
+    </li>
+  ))}
+</ul>
     </div>
   );
 }
-
-export default ExerciseList;
-
 

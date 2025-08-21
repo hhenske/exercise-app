@@ -1,82 +1,90 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { fetchExercises } from "../api/exerciseApi";
 
-function LandingPage({ onStart }) {
-  const [exerciseType, setExerciseType] = useState("");
-  const [bodyParts, setBodyParts] = useState([]);
+export default function LandingPage({ onStart }) {
+  const navigate = useNavigate();
 
-  const bodyPartOptions = [
-    "Chest",
-    "Back",
-    "Legs",
-    "Arms",
-    "Shoulders",
-    "Core",
-  ];
+  const [exerciseType, setExerciseType] = useState(""); // "strength" or "cardio"
+  const [bodyParts, setBodyParts] = useState([]); // selected body parts
+  const [availableBodyParts, setAvailableBodyParts] = useState([]); // for checkboxes
+  const [loadingBodyParts, setLoadingBodyParts] = useState(false);
 
-  function toggleBodyPart(part) {
-    if (bodyParts.includes(part)) {
-      setBodyParts(bodyParts.filter((p) => p !== part));
+  // When exerciseType changes, fetch body parts if strength
+  useEffect(() => {
+    if (exerciseType === "strength") {
+      setLoadingBodyParts(true);
+      fetchExercises("strength")
+        .then(data => {
+          // collect unique body parts
+          const parts = Array.from(
+            new Set(data.flatMap(ex => ex.bodyParts))
+          );
+          setAvailableBodyParts(parts);
+        })
+        .catch(err => console.error(err))
+        .finally(() => setLoadingBodyParts(false));
     } else {
-      setBodyParts([...bodyParts, part]);
+      setAvailableBodyParts([]);
+      setBodyParts([]);
     }
-  }
+  }, [exerciseType]);
 
-  function handleSubmit(e) {
+  const handleSubmit = e => {
     e.preventDefault();
+    if (!exerciseType) return alert("Please select an exercise type");
+
+    // pass selected filters to App
     onStart({ exerciseType, bodyParts });
-  }
+    navigate("/exercises");
+  };
 
   return (
-    <div className="landing">
-      <h1>Welcome to Exercise App 🏋️</h1>
-      <p>Select your preferences to get started:</p>
-
+    <div>
+      <h1>Select Your Workout</h1>
       <form onSubmit={handleSubmit}>
-        {/* Cardio vs Strength */}
-        <div>
-          <label>
-            <input
-              type="radio"
-              name="exerciseType"
-              value="cardio"
-              checked={exerciseType === "cardio"}
-              onChange={(e) => setExerciseType(e.target.value)}
-            />
-            Cardio
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="exerciseType"
-              value="strength"
-              checked={exerciseType === "strength"}
-              onChange={(e) => setExerciseType(e.target.value)}
-            />
-            Strength
-          </label>
-        </div>
+        <label>
+          Exercise Type:
+          <select
+            value={exerciseType}
+            onChange={e => setExerciseType(e.target.value)}
+          >
+            <option value="">--Choose--</option>
+            <option value="strength">Strength</option>
+            <option value="cardio">Cardio</option>
+          </select>
+        </label>
 
-        {/* Strength Body Part Checkboxes */}
         {exerciseType === "strength" && (
           <div>
-            <h3>Select body parts:</h3>
-            {bodyPartOptions.map((part) => (
-              <label key={part}>
-                <input
-                  type="checkbox"
-                  checked={bodyParts.includes(part)}
-                  onChange={() => toggleBodyPart(part)}
-                />
-                {part}
-              </label>
-            ))}
+            <h3>Choose Body Part(s)</h3>
+            {loadingBodyParts ? (
+              <p>Loading...</p>
+            ) : (
+              availableBodyParts.map(bp => (
+                <label key={bp} style={{ marginRight: "10px" }}>
+                  <input
+                    type="checkbox"
+                    value={bp}
+                    checked={bodyParts.includes(bp)}
+                    onChange={e => {
+                      const checked = e.target.checked;
+                      setBodyParts(prev =>
+                        checked
+                          ? [...prev, bp]
+                          : prev.filter(p => p !== bp)
+                      );
+                    }}
+                  />
+                  {bp}
+                </label>
+              ))
+            )}
           </div>
         )}
 
-        <button type="submit">Show Exercises</button>
+        <button type="submit">Start Workout</button>
       </form>
     </div>
   );
 }
-
-export default LandingPage;

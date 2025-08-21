@@ -1,6 +1,6 @@
 // src/components/ExerciseCard.jsx
 import React from "react";
-import "./app.css"; // keep styles consistent
+import "../app.css"; // keep styles consistent
 
 function ExerciseCard({ exercise }) {
   return (
