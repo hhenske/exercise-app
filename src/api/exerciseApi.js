@@ -1,5 +1,4 @@
-// src/api/exerciseApi.js
-const API_BASE = "https://v2.exercisedb.dev/api/v1";
+const API_BASE = "/api"; // <-- changed to go through Vite proxy
 
 // Fetch exercises by type and optional body parts
 export async function fetchExercises(exerciseType, bodyParts = []) {
@@ -19,7 +18,7 @@ export async function fetchExercises(exerciseType, bodyParts = []) {
     if (!res.ok) throw new Error(`Failed to fetch ${exerciseType} exercises`);
 
     const json = await res.json();
-    return json.data; // API returns { data: [...] }
+    return json.data || []; // API returns { data: [...] }
   } catch (err) {
     console.error(err);
     return [];

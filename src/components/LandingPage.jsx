@@ -5,9 +5,9 @@ import { fetchExercises } from "../api/exerciseApi";
 export default function LandingPage({ onStart }) {
   const navigate = useNavigate();
 
-  const [exerciseType, setExerciseType] = useState(""); // "strength" or "cardio"
-  const [bodyParts, setBodyParts] = useState([]); // selected body parts
-  const [availableBodyParts, setAvailableBodyParts] = useState([]); // for checkboxes
+  const [exerciseType, setExerciseType] = useState(""); 
+  const [bodyParts, setBodyParts] = useState([]); 
+  const [availableBodyParts, setAvailableBodyParts] = useState([]); 
   const [loadingBodyParts, setLoadingBodyParts] = useState(false);
 
   // When exerciseType changes, fetch body parts if strength
@@ -16,10 +16,7 @@ export default function LandingPage({ onStart }) {
       setLoadingBodyParts(true);
       fetchExercises("strength")
         .then(data => {
-          // collect unique body parts
-          const parts = Array.from(
-            new Set(data.flatMap(ex => ex.bodyParts))
-          );
+          const parts = Array.from(new Set(data.flatMap(ex => ex.bodyParts)));
           setAvailableBodyParts(parts);
         })
         .catch(err => console.error(err))
@@ -30,11 +27,10 @@ export default function LandingPage({ onStart }) {
     }
   }, [exerciseType]);
 
-  const handleSubmit = e => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!exerciseType) return alert("Please select an exercise type");
 
-    // pass selected filters to App
     onStart({ exerciseType, bodyParts });
     navigate("/exercises");
   };
@@ -70,9 +66,7 @@ export default function LandingPage({ onStart }) {
                     onChange={e => {
                       const checked = e.target.checked;
                       setBodyParts(prev =>
-                        checked
-                          ? [...prev, bp]
-                          : prev.filter(p => p !== bp)
+                        checked ? [...prev, bp] : prev.filter(p => p !== bp)
                       );
                     }}
                   />

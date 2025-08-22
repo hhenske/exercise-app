@@ -1,4 +1,3 @@
-// src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 import LandingPage from "./components/LandingPage";
@@ -17,9 +16,7 @@ function App() {
             <LandingPage
               filters={filters}
               setFilters={setFilters}
-              onStart={(chosenFilters) => {
-                setFilters(chosenFilters);
-              }}
+              onStart={(chosenFilters) => setFilters(chosenFilters)}
             />
           }
         />
@@ -35,4 +32,3 @@ function App() {
 }
 
 export default App;
-
