@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchExercises } from "../api/exerciseApi";
+import "../app.css";
 
 export default function LandingPage({ onStart }) {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ export default function LandingPage({ onStart }) {
     <div>
       <h1>Select Your Workout</h1>
       <form onSubmit={handleSubmit}>
-        <label>
+        <label className="form-label">
           Exercise Type:
           <select
             value={exerciseType}
@@ -77,7 +78,7 @@ export default function LandingPage({ onStart }) {
           </div>
         )}
 
-        <button type="submit">Start Workout</button>
+        <button type="submit">Generate Workout</button>
       </form>
     </div>
   );
